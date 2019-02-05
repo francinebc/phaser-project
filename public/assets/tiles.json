@@ -1,0 +1,14 @@
+{ "columns":44,
+ "image":"..\/..\/..\/phaser-top-down-tutorial\/public\/assets\/images\/tiles.png",
+ "imageheight":1280,
+ "imagewidth":705,
+ "margin":0,
+ "name":"tavern",
+ "spacing":0,
+ "tilecount":3520,
+ "tiledversion":"1.2.2",
+ "tileheight":16,
+ "tilewidth":16,
+ "type":"tileset",
+ "version":1.2
+}
