@@ -17,7 +17,7 @@ function create() {
 
     player = this.physics.add.sprite(100, 450, 'dude');
 
-    player.setBounce(0.2);
+    // player.setBounce(0.2);
     player.setCollideWorldBounds(true);
 
     this.anims.create({
@@ -40,7 +40,8 @@ function create() {
         repeat: -1
     });
 
-    player.body.setGravityY(300)
+    // player.body.setGravityY(0)
+    player.body.allowGravity = false
 
 
     stars = this.physics.add.group({
@@ -80,14 +81,21 @@ function update() {
 
         player.anims.play('right', true);
     }
+    else if (cursors.up.isDown) {
+        player.setVelocityY(-160);
+
+        player.anims.play('turn', true);
+    }
+    else if (cursors.down.isDown){
+        player.setVelocityY(160);
+
+        player.anims.play('turn', true);
+    }
     else {
         player.setVelocityX(0);
+        player.setVelocityY(0);
 
-        player.anims.play('turn');
-    }
-
-    if (cursors.up.isDown && player.body.touching.down) {
-        player.setVelocityY(-500);
+        player.anims.play('turn', true);
     }
 }
 
