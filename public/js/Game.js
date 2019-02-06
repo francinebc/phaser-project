@@ -4,125 +4,59 @@ var scoreText;
 
 function create() {
 
+    var map = this.make.tilemap({ key: 'map' });
 
-    this.add.image(400, 300, 'sky');
+    // Name of tileset from Weltmeister map, name of image in Phaser cache
+    var tileset = map.addTilesetImage('assets/terrain_atlas.png', 'tiles');
 
-    platforms = this.physics.add.staticGroup();
+    map.createBlankDynamicLayer('background', tileset)
+        .fill(0)
+        .setAlpha(0.3);
 
-    platforms.create(400, 568, 'ground').setScale(2).refreshBody();
+    // Name of layer from Weltmeister, tileset, x, y
+    var layer = map.createStaticLayer('map', tileset, 0, 0);
 
-    platforms.create(600, 400, 'ground');
-    platforms.create(50, 250, 'ground');
-    platforms.create(750, 220, 'ground');
+    // This will pull in the "collision" layer from the associated map
+    this.impact.world.setCollisionMap('map');
 
-    player = this.physics.add.sprite(100, 450, 'dude');
+    player = this.impact.add.image(64, 300, 'player');
+    player.setMaxVelocity(500, 400).setFriction(800, 0);
+    player.body.accelGround = 1200;
+    player.body.accelAir = 600;
+    player.body.jumpSpeed = 1000;
 
-    // player.setBounce(0.2);
-    player.setCollideWorldBounds(true);
-
-    this.anims.create({
-        key: 'left',
-        frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
-        frameRate: 10,
-        repeat: -1
-    });
-
-    this.anims.create({
-        key: 'turn',
-        frames: [{ key: 'dude', frame: 4 }],
-        frameRate: 20
-    });
-
-    this.anims.create({
-        key: 'right',
-        frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
-        frameRate: 10,
-        repeat: -1
-    });
-
-    // player.body.setGravityY(0)
-    player.body.allowGravity = false
-
-
-    stars = this.physics.add.group({
-        key: 'star',
-        repeat: 11,
-        setXY: { x: 12, y: 0, stepX: 70}
-    });
-
-    stars.children.iterate(function (child) {
-
-        child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
-
-    });
-
-    bombs = this.physics.add.group();
-
-
-    scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
-
-    this.physics.add.collider(bombs, platforms);
-    this.physics.add.collider(player, bombs, hitBomb, null, this);
-    this.physics.add.collider(player, platforms);
-    this.physics.add.collider(stars, platforms);
-    this.physics.add.overlap(player, stars, collectStar, null, this);
+    this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+    this.cameras.main.startFollow(player);
 
     cursors = this.input.keyboard.createCursorKeys();
+
+    var help = this.add.text(16, 16, 'Arrow keys to move. Press "up" to jump.', {
+        fontSize: '18px',
+        fill: '#ffffff'
+    });
+    help.setScrollFactor(0);
+
 }
 
-function update() {
-    if (cursors.left.isDown) {
-        player.setVelocityX(-160);
+function update() { 
+    
+    var accel = player.body.standing ? player.body.accelGround : player.body.accelAir;
 
-        player.anims.play('left', true);
+    if (cursors.left.isDown)
+    {
+        player.setAccelerationX(-accel);
     }
-    else if (cursors.right.isDown) {
-        player.setVelocityX(160);
-
-        player.anims.play('right', true);
+    else if (cursors.right.isDown)
+    {
+        player.setAccelerationX(accel);
     }
-    else if (cursors.up.isDown) {
-        player.setVelocityY(-160);
-
-        player.anims.play('turn', true);
+    else
+    {
+        player.setAccelerationX(0);
     }
-    else if (cursors.down.isDown){
-        player.setVelocityY(160);
 
-        player.anims.play('turn', true);
+    if (cursors.up.isDown && player.body.standing)
+    {
+        player.setVelocityY(-player.body.jumpSpeed);
     }
-    else {
-        player.setVelocityX(0);
-        player.setVelocityY(0);
-
-        player.anims.play('turn', true);
-    }
-}
-
-function collectStar(player, star) {
-    star.disableBody(true, true);
-    score += 10;
-    scoreText.setText('Score: ' + score);
-    if (stars.countActive(true) === 0) {
-        stars.children.iterate(function (child) {
-
-            child.enableBody(true, child.x, 0, true, true);
-
-        });
-
-        var x = (player.x < 400) ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400);
-
-        var bomb = bombs.create(x, 16, 'bomb');
-        bomb.setBounce(1);
-        bomb.setCollideWorldBounds(true);
-        bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
-
-    }
-}
-
-function hitBomb(player, bomb) {
-    this.physics.pause();
-    player.setTint(0xff0000);
-    player.anims.play('turn');
-    gameOver = true;
 }

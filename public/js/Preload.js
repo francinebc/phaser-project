@@ -1,10 +1,10 @@
 function preload() {
-    this.load.image('sky', 'assets/sky.png');
-    this.load.image('ground', 'assets/platform.png');
-    this.load.image('star', 'assets/star.png');
-    this.load.image('bomb', 'assets/bomb.png');
-    this.load.spritesheet('dude',
+
+    this.load.image('tiles', '/assets/tiles.json');
+    this.load.spritesheet('player',
         'assets/dude.png',
         { frameWidth: 32, frameHeight: 48 }
     );
+
+    this.load.tilemapImpact('map', '/assets/tavern.json');
 }
